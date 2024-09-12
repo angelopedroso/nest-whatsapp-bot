@@ -1,0 +1,28 @@
+@baseUrl = http://localhost:9999
+
+# @name qrcode
+GET {{baseUrl}}/qr
+Content-Type: application/json
+
+###
+
+# @name send_message
+POST {{baseUrl}}/send
+Content-Type: application/json
+
+{
+  "message": "Ok",
+  "phone": "51997561207"
+}
+
+###
+
+# @name send_multiple_message
+
+POST {{baseUrl}}/send-multiple
+Content-Type: application/json
+
+{
+  "message": "Vilma Mocharaizerdadasda",
+  "phones": ["5551997561207", "555136262066"]
+}
