@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { Client as WppClient, LocalAuth } from 'whatsapp-web.js'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { Cron, CronExpression } from '@nestjs/schedule'
 
 @Injectable()
 export class BotService extends WppClient implements OnModuleInit {
@@ -26,6 +27,7 @@ export class BotService extends WppClient implements OnModuleInit {
   onModuleInit() {
     super.on('qr', (qr) => {
       this.logger.log(`QrCode`)
+
       this.eventEmitter.emit('qrcode.created', qr)
     })
 
@@ -38,11 +40,20 @@ export class BotService extends WppClient implements OnModuleInit {
       super.sendSeen(msg.from)
     })
 
-    super.on('disconnected', (reason) => {
-      this.logger.warn(reason)
-      super.logout()
+    super.on('disconnected', async (reason) => {
+      this.logger.warn(`Disconnected: ${reason}`)
     })
 
     super.initialize()
+  }
+
+  @Cron(CronExpression.EVERY_6_HOURS)
+  async handleRestart() {
+    const session = await super.getState()
+
+    if (session) {
+      super.destroy()
+      super.initialize()
+    }
   }
 }
