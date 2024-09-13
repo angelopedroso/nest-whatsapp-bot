@@ -53,27 +53,19 @@ export class BotMessagesRepository implements MessagesRepository {
   private async numberIsValid(
     phone: string,
   ): Promise<WAWebJS.ContactId | null> {
-    const phoneWithDDD = phone.startsWith('55') ? phone : '55' + phone
-
     const phoneWithoutNine =
-      phoneWithDDD.length === 13
-        ? phoneWithDDD.slice(0, 4) + phoneWithDDD.slice(5)
-        : null
+      phone.length === 13 ? phone.slice(0, 4) + phone.slice(5) : null
 
     const phoneWithNine =
-      phoneWithDDD.length === 12
-        ? phoneWithDDD.slice(0, 4) + '9' + phoneWithDDD.slice(4)
-        : null
+      phone.length === 12 ? phone.slice(0, 4) + '9' + phone.slice(4) : null
 
-    const [validPhoneWithDDD, validPhoneWithoutNine, validPhoneWithNine] =
+    const [validPhone, validPhoneWithoutNine, validPhoneWithNine] =
       await Promise.all([
-        this.bot.getNumberId(phoneWithDDD),
+        this.bot.getNumberId(phone),
         phoneWithoutNine ? this.bot.getNumberId(phoneWithoutNine) : null,
         phoneWithNine ? this.bot.getNumberId(phoneWithNine) : null,
       ])
 
-    return (
-      validPhoneWithDDD || validPhoneWithoutNine || validPhoneWithNine || null
-    )
+    return validPhone || validPhoneWithoutNine || validPhoneWithNine || null
   }
 }

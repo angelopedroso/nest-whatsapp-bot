@@ -5,7 +5,27 @@ import { ZodValidationPipe } from '../../pipes/zod-validation.pipe'
 
 const sendMultipleSchema = z.object({
   phones: z
-    .array(z.string())
+    .array(
+      z
+        .string({
+          required_error:
+            'É necessário fornecer um telefone para enviar a mensagem',
+        })
+        .min(10, 'É necessário fornecer um telefone para ser enviada')
+        .regex(
+          /^(?:\+?55)?(?:\(?\d{2}\)?\s?)?\d{4,5}-?\d{4}|\d{12,13}$/,
+          'Telefone inválido',
+        )
+        .transform((phone) => {
+          const phoneWithoutSpecial = phone.replace(/[^\d]/g, '')
+
+          const formattedPhone = phoneWithoutSpecial.startsWith('55')
+            ? phoneWithoutSpecial
+            : '55' + phoneWithoutSpecial
+
+          return formattedPhone
+        }),
+    )
     .min(1, 'É necessário fornecer ao menos 1 número de celular'),
   message: z
     .string({
